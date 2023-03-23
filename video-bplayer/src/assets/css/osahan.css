@@ -818,6 +818,9 @@ body.fixed-nav.sidebar-toggled #content-wrapper {
      position: absolute;
      right: 5px;
 }
+.time-s {
+    background: #f5234a; border-radius: 2px; color: white; padding: 0 3px; font-weight: bold;
+}
  .video-card:hover .time{
      opacity: unset;
 }

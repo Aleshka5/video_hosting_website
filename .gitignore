@@ -127,3 +127,6 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+video_backend/app/audio/
+video_backend/app/videos/
