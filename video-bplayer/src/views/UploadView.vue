@@ -17,7 +17,7 @@
     <div class="row">
       <div class="col-lg-12">
         <div class="main-title">
-          <h6>Загрузка видео с YouTube</h6>
+          <h6>Загрузка видео</h6>
         </div>
       </div>
     </div>
@@ -44,7 +44,10 @@
       </div>
     </div>
     <hr v-if="progress > 0">
-    <form>
+    <label class="control-label">Простая загрузка файла</label>
+    <input type="checkbox" v-model="isSimpleUpload" />
+
+    <form v-if="!isSimpleUpload">
       <div class="row">
         <div class="col-sm-6">
           <div class="form-group">
@@ -56,21 +59,21 @@
         </div>
       </div>
 
-      <div class="row">
-        <div class="col-sm-6">
-          <div class="form-group">
-            <label class="control-label">Url видео <span class="required">*</span></label>
-            <input class="form-control border-form-control" placeholder="https://youtube.com/anyvideo"
-                   v-model.trim="v$.url.$model"
-                   type="text">
-            <span class='error-field'
-              v-for="error in v$.url.$errors"
-              :key="error" >
-              {{ `${error.$propertyPath}.${error.$validator}` }}
-            </span>
-          </div>
-        </div>
-      </div>
+<!--      <div class="row">-->
+<!--        <div class="col-sm-6">-->
+<!--          <div class="form-group">-->
+<!--            <label class="control-label">Url видео <span class="required">*</span></label>-->
+<!--            <input class="form-control border-form-control" placeholder="https://youtube.com/anyvideo"-->
+<!--                   v-model.trim="v$.url.$model"-->
+<!--                   type="text">-->
+<!--            <span class='error-field'-->
+<!--              v-for="error in v$.url.$errors"-->
+<!--              :key="error" >-->
+<!--              {{ `${error.$propertyPath}.${error.$validator}` }}-->
+<!--            </span>-->
+<!--          </div>-->
+<!--        </div>-->
+<!--      </div>-->
       <div class="row">
         <div class="col-sm-6">
           <div class="form-group">
@@ -131,7 +134,54 @@
       </div>
       <div class="row">
         <div class="col-sm-12">
-          <button :disabled="v$.$invalid" type="button" class="btn btn-success border-none" v-on:click="onSave">Сохранить</button>
+          <button :disabled="v$.$invalid" type="button" class="btn btn-success border-none" v-on:click="onSave">Загрузить и обработать</button>
+        </div>
+      </div>
+    </form>
+
+    <form v-if="isSimpleUpload">
+      <div class="row">
+        <div class="col-sm-6">
+          <div class="form-group">
+            <label class="control-label">Url сервера с GPU <span class="required">*</span></label>
+            <input class="form-control border-form-control" placeholder="https://localhost:5000"
+                   v-model.trim="gpuServerUrl"
+                   type="text">
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-sm-6">
+          <div class="form-group">
+            <label class="control-label">Файл для загрузки<span class="required">*</span></label>
+            <input class="box__file" ref="uploadFile" type="file" name="uploadFile" id="uploadFile" />
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-sm-6">
+          <div class="form-group">
+            <label class="control-label">Тип файла <span class="required">*</span></label>
+            <select class="custom-select" v-model.trim="fileType">
+              <option value="image">image</option>
+              <option value="video">video</option>
+              <option value="audio">audio</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="row" v-if="uploadedFileName">
+        <div class="col-sm-12">
+          Файл успешно загружен. Имя файла: {{ uploadedFileName }}
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-sm-12">
+          <button type="button" class="btn btn-success border-none" v-on:click="onSimpleUpload">Загрузить</button>
         </div>
       </div>
     </form>
@@ -144,6 +194,7 @@ import VideoDownloadRequest from '@/models/VideoDownloadRequest';
 import {
   downloadVideo,
   uploadVideo,
+  uploadSimpleFile,
   getVideoById,
   processStart,
   processStatus,
@@ -158,11 +209,6 @@ import { Ref } from 'vue-property-decorator';
 @Options({
   components: {},
   validations: {
-    url: {
-      required,
-      minLength: minLength(8),
-      url,
-    },
     name: {
       required,
       minLength: minLength(8),
@@ -199,6 +245,12 @@ export default class UploadView extends Vue {
 
   currentInterval: number | null = null;
 
+  isSimpleUpload = true;
+
+  uploadedFileName = '';
+
+  fileType = 'image';
+
   @Ref('uploadFile') readonly uploadFile!: HTMLInputElement
 
   errors: { [key: string]: string } = {
@@ -216,6 +268,35 @@ export default class UploadView extends Vue {
   async onSave() {
     // await this.downloadVideo();
     await this.uploadVideoForm();
+  }
+
+  async onSimpleUpload() {
+    await this.uploadSimpleFile();
+  }
+
+  async uploadSimpleFile() {
+    const { files } = this.uploadFile;
+    if (!files) {
+      return;
+    }
+
+    const formData = new FormData();
+
+    // if you want to upload multiple files at once loop
+    // through the array of files
+    formData.append('file', files[0]);
+    formData.append('type', this.fileType);
+
+    try {
+      const fileName = await uploadSimpleFile(formData);
+      if (fileName) {
+        this.uploadedFileName = fileName;
+      }
+    } catch (ex: any) {
+      if (ex) {
+        this.uploadingMessage = 'Ошибка попробуйте снова';
+      }
+    }
   }
 
   async uploadVideoForm() {

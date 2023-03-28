@@ -26,6 +26,11 @@ export async function uploadVideo(formData: FormData): Promise<Video> {
   return response;
 }
 
+export async function uploadSimpleFile(formData: FormData): Promise<string> {
+  const response = await postFormData<string>('/api/simple/upload', formData);
+  return response;
+}
+
 export async function processStart(process: Process): Promise<Process> {
   const response = await post<Process>('/api/process/start', process);
   return response;

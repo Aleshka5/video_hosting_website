@@ -156,8 +156,42 @@ def read_video(video_id):
     else:
         return '', 404
 
+@app.route('/api/simple/upload', methods=['POST'])
+def upload_simple_file():
+    # check if the post request has the file part
+    if 'file' not in request.files:
+        return 'No file part', 400
+    type = request.form['type']
+
+    file = request.files['file']
+    # If the user does not select a file, the browser submits an
+    # empty file without a filename.
+    if file.filename == '':
+        return 'No selected file', 400
+
+    # filename = secure_filename(file.filename)
+    if type == 'video':
+        ts = str(time.time())
+        video_file_name = ts + '.mp4'
+        video_file_path_app = './app/videos/' + video_file_name
+        file.save(video_file_path_app)
+        return jsonify(video_file_name)
+
+    if type == 'image':
+        ts = str(time.time())
+        image_file_name = ts + '.jpg'
+        image_file_path_app = './app/images/' + image_file_name
+        file.save(image_file_path_app)
+        return jsonify(image_file_name)
+
+    if type == 'audio':
+        audio_file_path_app = './app/audio/' + file.filename
+        file.save(audio_file_path_app)
+        return jsonify(file.filename)
+
+
 @app.route('/api/videos/upload', methods=['POST'])
-def upload_file():
+def upload_video():
     # check if the post request has the file part
     if 'file' not in request.files:
         return 'No file part', 400
