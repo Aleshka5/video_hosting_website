@@ -157,6 +157,7 @@ def read_video(video_id):
         return '', 404
 
 @app.route('/api/simple/upload', methods=['POST'])
+@cross_origin()
 def upload_simple_file():
     # check if the post request has the file part
     if 'file' not in request.files:
@@ -191,6 +192,7 @@ def upload_simple_file():
 
 
 @app.route('/api/videos/upload', methods=['POST'])
+@cross_origin()
 def upload_video():
     # check if the post request has the file part
     if 'file' not in request.files:

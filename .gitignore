@@ -129,4 +129,5 @@ dmypy.json
 .pyre/
 
 video_backend/app/audio/
+video_backend/app/images/
 video_backend/app/videos/
