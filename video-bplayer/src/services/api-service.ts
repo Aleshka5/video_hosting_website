@@ -1,8 +1,10 @@
-import { get, post } from '@/services/http-utils';
+import { get, post, postFormData } from '@/services/http-utils';
 import User from '@/models/User';
 import Video from '@/models/Video';
 import Subtitle from '@/models/Subtitle';
 import LoginRequest from '@/models/LoginRequest';
+import VideoDownloadRequest from '@/models/VideoDownloadRequest';
+import Process from '@/models/Process';
 
 export async function register(loginRequest: LoginRequest): Promise<User> {
   const response = await post<User>('/api/register', loginRequest);
@@ -11,6 +13,26 @@ export async function register(loginRequest: LoginRequest): Promise<User> {
 
 export async function login(loginRequest: LoginRequest): Promise<User> {
   const response = await post<User>('/api/login', loginRequest);
+  return response;
+}
+
+export async function downloadVideo(videoDownloadRequest: VideoDownloadRequest): Promise<Video> {
+  const response = await post<Video>('/api/videos/download', videoDownloadRequest);
+  return response;
+}
+
+export async function uploadVideo(formData: FormData): Promise<Video> {
+  const response = await postFormData<Video>('/api/videos/upload', formData);
+  return response;
+}
+
+export async function processStart(process: Process): Promise<Process> {
+  const response = await post<Process>('/api/process/start', process);
+  return response;
+}
+
+export async function processStatus(processId: number): Promise<Process> {
+  const response = await get<Process>(`/api/process/status/${processId}`);
   return response;
 }
 

@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, Text, ForeignKey
+from sqlalchemy import Column, Integer, Boolean, DateTime, Text, ForeignKey
 from dataclasses import dataclass
 
 from sqlalchemy.orm import relationship
@@ -39,6 +39,7 @@ class Video(db.Model):
     duration_seconds = Column(Integer)
     fps = Column(Integer)
     scenes = db.relationship('Scene', backref='videos')
+    processes = db.relationship('Process', backref='videos')
 
     def __init__(
             self,
@@ -102,6 +103,41 @@ class Subtitle(db.Model):
         self.voice_file_path = voice_file_path
         self.start_frame = start_frame
         self.end_frame = end_frame
+
+    def as_dict(self):
+        return {camel.case(c.name): getattr(self, c.name) for c in self.__table__.columns}
+
+    def __repr__(self):
+        return '<id {}>'.format(self.id)
+
+@dataclass
+class Process(db.Model):
+    __tablename__ = 'processes'
+    id = Column(Integer, primary_key=True)
+    status = Column(Integer)
+    date_start = Column(DateTime)
+    date_end = Column(DateTime)
+    updated_at = Column(DateTime)
+    is_success = Column(Boolean)
+    error_message = Column(Text, unique=False)
+    video_id = Column(Integer, ForeignKey('videos.id'))
+
+    def __init__(
+            self,
+            status=0,
+            video_id=0,
+            date_start=None,
+            date_end=None,
+            updated_at=None,
+            is_success=False,
+            error_message=None):
+        self.status = status
+        self.video_id = video_id
+        self.date_start = date_start
+        self.date_end = date_end
+        self.updated_at = updated_at
+        self.is_success = is_success
+        self.error_message = error_message
 
     def as_dict(self):
         return {camel.case(c.name): getattr(self, c.name) for c in self.__table__.columns}

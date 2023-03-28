@@ -1,0 +1,14 @@
+flask
+flask-cors
+Flask-SQLAlchemy
+flask-executor
+psycopg2-binary
+humps
+pytube
+
+pytorch
+opencv
+salesforce-lavis
+happytransformer
+scenedetect[opencv]
+pydub

@@ -69,6 +69,39 @@ export async function post<T>(
   return response;
 }
 
+export async function postFormData<T>(
+  path: string,
+  formData: FormData,
+): Promise<T> {
+  const args: RequestInit = {
+    method: 'post',
+    body: formData,
+    headers: {
+      Accept: 'application/json',
+      // 'Content-Type': 'multipart/form-data',
+    },
+  };
+
+  const response: HttpResponse<T> = await fetch(new Request(`${serverUrl}${path}`, args));
+
+  if (!response.ok) {
+    if (response.status !== 400) {
+      const err = await response.text();
+      throw new Error(err);
+    }
+  }
+
+  let parsedBody = null;
+  try {
+    // may error if there is no body
+    parsedBody = await response.json();
+  } catch (ex) {
+    throw new Error('Error parse json');
+  }
+
+  return parsedBody;
+}
+
 export async function put<T>(
   path: string,
   body: any,

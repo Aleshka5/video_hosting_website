@@ -15,7 +15,8 @@
     "baseUrl": ".",
     "types": [
       "webpack-env",
-      "jest"
+      "jest",
+      "dom-speech-recognition"
     ],
     "paths": {
       "@/*": [
